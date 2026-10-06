@@ -49,6 +49,16 @@ async def global_exception_handler(request: Request, exc: Exception):
 app.include_router(analyze_router)
 app.include_router(history_router)
 
+@app.get("/")
+async def root():
+    return {
+        "service": "ScamInvestigation AI API",
+        "status": "online",
+        "documentation": "/docs",
+        "health": "/api/health",
+        "message": "Backend engine is operational."
+    }
+
 @app.get("/api/health")
 async def health_check():
     has_groq = bool(os.getenv("GROQ_API_KEY"))
