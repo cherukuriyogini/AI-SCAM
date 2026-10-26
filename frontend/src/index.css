@@ -33,3 +33,17 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #334155;
 }
+
+/* Print Stylesheet for Forensic Incident Reports */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+  header, nav, button, footer {
+    display: none !important;
+  }
+  .animate-fadeIn {
+    animation: none !important;
+  }
+}

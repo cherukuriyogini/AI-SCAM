@@ -18,11 +18,15 @@ import {
   Lock,
   Compass,
   FileCheck2,
-  Cpu
+  Cpu,
+  Printer,
+  PhoneCall
 } from 'lucide-react';
+import ReportModal from './ReportModal';
 
 export default function ResultDashboard({ result, onReset }) {
   const [copied, setCopied] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   if (!result) return null;
 
@@ -113,6 +117,23 @@ export default function ResultDashboard({ result, onReset }) {
           </div>
 
           <button
+            onClick={() => setIsReportModalOpen(true)}
+            className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg bg-rose-600/20 hover:bg-rose-600/30 border border-rose-500/40 text-xs font-semibold text-rose-300 hover:text-white transition-all shadow-sm"
+          >
+            <PhoneCall className="w-3.5 h-3.5 text-rose-400" />
+            <span>Report to Authorities</span>
+          </button>
+
+          <button
+            onClick={() => window.print()}
+            className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-xs font-medium text-slate-200 hover:text-white transition-all shadow-sm"
+            title="Print or Save as PDF Incident Report"
+          >
+            <Printer className="w-3.5 h-3.5 text-blue-400" />
+            <span>Print Report</span>
+          </button>
+
+          <button
             onClick={handleCopyReport}
             className="inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 text-xs font-medium text-slate-200 hover:text-white transition-all shadow-sm"
           >
@@ -124,7 +145,7 @@ export default function ResultDashboard({ result, onReset }) {
             ) : (
               <>
                 <Copy className="w-3.5 h-3.5" />
-                <span>Copy Report</span>
+                <span>Copy</span>
               </>
             )}
           </button>
@@ -474,6 +495,13 @@ export default function ResultDashboard({ result, onReset }) {
           </div>
         )}
       </div>
+
+      {/* Official Authorities Reporting Guide Modal */}
+      <ReportModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        currentResult={result}
+      />
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, ShieldAlert, History, Info, Sparkles, Activity } from 'lucide-react';
+import { Shield, ShieldAlert, History, Info, Sparkles, Activity, HelpCircle, PhoneCall } from 'lucide-react';
 
 export default function Navbar({ activeTab, setActiveTab, backendStatus }) {
   return (
@@ -61,6 +61,17 @@ export default function Navbar({ activeTab, setActiveTab, backendStatus }) {
           >
             <History className="w-4 h-4" />
             <span>History</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('quiz')}
+            className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center space-x-1.5 ${
+              activeTab === 'quiz'
+                ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30 shadow-sm'
+                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+            }`}
+          >
+            <HelpCircle className="w-4 h-4 text-purple-400" />
+            <span>Radar Quiz</span>
           </button>
           <button
             onClick={() => setActiveTab('about')}

@@ -15,6 +15,8 @@ __pycache__/
 .env*.local
 venv/
 .venv/
+*.db
+*.sqlite3
 
 # testing
 /coverage

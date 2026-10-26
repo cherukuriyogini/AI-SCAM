@@ -6,6 +6,7 @@ import AnalyzerCard from './components/AnalyzerCard';
 import ResultDashboard from './components/ResultDashboard';
 import HistoryView from './components/HistoryView';
 import AboutSection from './components/AboutSection';
+import ScamQuiz from './components/ScamQuiz';
 import { 
   analyzeContentApi, 
   checkBackendHealth, 
@@ -14,7 +15,7 @@ import {
 import { Shield, AlertCircle, HeartHandshake } from 'lucide-react';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'analyze', 'history', 'about'
+  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'analyze', 'history', 'quiz', 'about'
   const [inputTab, setInputTab] = useState('message'); // 'message', 'screenshot', 'link'
   const [messageContent, setMessageContent] = useState('');
   const [urlContent, setUrlContent] = useState('');
@@ -188,6 +189,10 @@ export default function App() {
               setCurrentResult(null);
             }}
           />
+        )}
+
+        {activeTab === 'quiz' && (
+          <ScamQuiz />
         )}
 
         {activeTab === 'about' && (

@@ -12,7 +12,8 @@ KNOWN_ORGS = [
     "Paytm", "PhonePe", "Google Pay", "GPay", "PayPal", "Amazon", "Netflix", "WhatsApp",
     "Telegram", "FedEx", "DHL", "India Post", "Income Tax Department", "CBI", "Mumbai Police",
     "Delhi Police", "Reserve Bank of India", "RBI", "Kaun Banega Crorepati", "KBC",
-    "Microsoft Support", "Apple Support"
+    "Microsoft Support", "Apple Support", "TRAI", "Electricity Department", "BESCOM",
+    "MSEDCL", "Airtel", "Jio", "Vodafone Idea", "AnyDesk", "TeamViewer"
 ]
 
 def extract_entities(text: str) -> Dict[str, List[str]]:
@@ -244,7 +245,22 @@ def analyze_patterns(text: str, direct_url: str = None) -> Dict[str, Any]:
          "Fabricated threats of prosecution, arrest, or penalties designed to coerce desperate compliance."),
         (r'\b(send your (?:aadhaar|pan|bank details|card details|identity proof))\b',
          "Sensitive Personal Identity Request", "HIGH",
-         "Demanding sensitive government identity cards (Aadhaar/PAN) or banking records enables identity theft and loan fraud.")
+         "Demanding sensitive government identity cards (Aadhaar/PAN) or banking records enables identity theft and loan fraud."),
+        (r'\b(electricity|power|bill (?:overdue|unpaid)|power supply (?:disconnected|cut)|disconnection tonight|electricity officer)\b',
+         "Utility Disconnection Extortion", "HIGH",
+         "Fraudulent warnings of immediate power disconnection designed to coerce victims into calling a fake helpline or making instant payments."),
+        (r'\b(digital arrest|skype (?:video )?call|stay on the call|secluded room|cbi interrogation|narcotics bureau)\b',
+         "Digital Arrest & Coercive Surveillance", "HIGH",
+         "Criminals falsely claim victims are under 'digital arrest' and force them to remain on video calls to prevent contacting real police."),
+        (r'\b(anydesk|teamviewer|rustdesk|quicksupport|screen share|screen sharing|install (?:this )?apk|download (?:this )?apk)\b',
+         "Remote Access & Screen Sharing Trap", "HIGH",
+         "Instructing victims to download remote desktop apps or unverified APKs allows scammers to view OTPs and hijack bank accounts."),
+        (r'\b(like youtube videos?|telegram task|review products?|prepaid task|merchant task|crypto task)\b',
+         "Part-Time Task & Merchant Review Fraud", "HIGH",
+         "Promising daily payouts for basic social media likes or reviews, followed by demands for upfront 'prepaid recharge fees'."),
+        (r'\b(sim (?:card )?(?:blocked|deactivated)|esim (?:request|activation)|send barcode|19-digit)\b',
+         "SIM Swap & Unauthorized eSIM Transfer", "HIGH",
+         "Deceptive alerts claiming your SIM card is expiring, tricking you into sending an eSIM activation code to hijack your phone number.")
     ]
 
     for pat, title, severity, explanation in urgency_patterns:
@@ -260,8 +276,17 @@ def analyze_patterns(text: str, direct_url: str = None) -> Dict[str, Any]:
             })
             detected_keywords.append(m.group(0))
             urgency_score = max(urgency_score, 85)
-            if "aadhaar" in text_lower or "bank details" in text_lower or "pan" in text_lower:
+            if "aadhaar" in text_lower or "bank details" in text_lower or "pan" in text_lower or "esim" in text_lower:
                 identity_score = max(identity_score, 90)
+            if "electricity" in text_lower or "power" in text_lower or "prepaid" in text_lower:
+                financial_score = max(financial_score, 90)
+                category_scores["Payment Scam"] += 35
+            if "digital arrest" in text_lower or "cbi" in text_lower or "police" in text_lower:
+                category_scores["Impersonation"] += 45
+            if "anydesk" in text_lower or "teamviewer" in text_lower or "apk" in text_lower:
+                category_scores["Phishing"] += 40
+            if "telegram task" in text_lower or "like youtube" in text_lower:
+                category_scores["Fake Job Scam"] += 40
 
     # Entity extraction
     entities = extract_entities(text_clean)
