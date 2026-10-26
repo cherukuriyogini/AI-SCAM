@@ -72,12 +72,13 @@ Return ONLY raw valid JSON, no markdown codeblocks, no explanations outside the 
             {"role": "system", "content": "You are a cybersecurity scam detection engine that outputs valid JSON only."},
             {"role": "user", "content": prompt}
         ],
+        "response_format": {"type": "json_object"},
         "temperature": 0.1,
-        "max_tokens": 1000
+        "max_tokens": 1200
     }
 
     try:
-        response = requests.post(api_url, headers=headers, json=payload, timeout=6)
+        response = requests.post(api_url, headers=headers, json=payload, timeout=12)
         if response.status_code == 200:
             data = response.json()
             raw_content = data["choices"][0]["message"]["content"].strip()
@@ -92,10 +93,26 @@ Return ONLY raw valid JSON, no markdown codeblocks, no explanations outside the 
             parsed = json.loads(raw_content.strip())
             
             # Merge with base analysis preserving entities and breakdown
-            base_analysis["risk_score"] = parsed.get("risk_score", base_analysis["risk_score"])
-            base_analysis["risk_level"] = parsed.get("risk_level", base_analysis["risk_level"])
+            llm_score = parsed.get("risk_score", base_analysis["risk_score"])
+            has_high_indicator = any(
+                str(i.get("severity", "")).upper() == "HIGH" for i in parsed.get("indicators", [])
+            ) or any(
+                str(i.get("severity", "")).upper() == "HIGH" for i in base_analysis.get("indicators", [])
+            )
+            final_score = max(base_analysis["risk_score"], llm_score)
+            if has_high_indicator and final_score < 70:
+                final_score = max(final_score, 88)
+
+            base_analysis["risk_score"] = final_score
+            if final_score >= 65:
+                base_analysis["risk_level"] = "HIGH"
+            elif final_score >= 35:
+                base_analysis["risk_level"] = "MEDIUM"
+            else:
+                base_analysis["risk_level"] = parsed.get("risk_level", base_analysis["risk_level"])
+
             base_analysis["category"] = parsed.get("category", base_analysis["category"])
-            base_analysis["confidence"] = parsed.get("confidence", base_analysis["confidence"])
+            base_analysis["confidence"] = max(base_analysis["confidence"], parsed.get("confidence", 85))
             base_analysis["summary"] = parsed.get("summary", base_analysis["summary"])
             if parsed.get("indicators"):
                 base_analysis["indicators"] = parsed["indicators"]
